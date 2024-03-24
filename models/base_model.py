@@ -10,16 +10,17 @@ class BaseModel():
 
     def __init__(self, *args, **kwargs):
         """constructor"""
-        if kwargs:
+        if len(kwargs) > 0:
             for key, val in kwargs.items():
-                if key not in ('__class__', 'created_at', 'updated_at'):
-                    self.__dict__[key] = val
-            self.created_at = datetime.fromisoformat(kwargs['created_at'])
-            self.updated_at = datetime.fromisoformat(kwargs['updated_at'])
+                if key == '__class__':
+                    continue
+                if key in ('created_at', 'updated_at'):
+                    val = datetime.fromisoformat(val)
+                setattr(self, key, val)
         else:
             self.id = str(uuid.uuid4())
-            self.created_at = datetime.datetime.now()
-            self.updated_at = datetime.datetime.now()
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
             models.storage.new(self)
 
     def __str__(self):
@@ -29,7 +30,7 @@ class BaseModel():
 
     def save(self):
         """sace instance"""
-        self.updated_at = datetime.datetime.now()
+        self.updated_at = datetime.now()
         models.storage.save()
 
     def to_dict(self):
